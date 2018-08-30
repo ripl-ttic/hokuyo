@@ -18,7 +18,6 @@
 #include <bot_param/param_client.h>
 #include <bot_param/param_util.h>
 
-//#include <lcmtypes/erlcm_multi_planar_lidar_t.h>
 #include <lcmtypes/bot_core_sensor_status_t.h>
 
 #include "urglib/urg_sensor.h"
@@ -116,7 +115,7 @@ _read_serialno(urg_t *urg, int *serialno)
 
     fprintf (stdout, "Got serial %d\n", sn);
 
-    /* 
+    /*
      * int LinesMax = 5;
      * char version_buffer[LinesMax][BUFFER_SIZE];
      * char *version_lines[LinesMax];
@@ -130,7 +129,7 @@ _read_serialno(urg_t *urg, int *serialno)
      * }
      * const char *prefix = "SERI:";
      * int plen = strlen(prefix);
-     * 
+     *
      * for(int i = 0; i < LinesMax; ++i) {
      *     if(!strncmp(version_lines[i], prefix, plen)) {
      *         char *eptr = NULL;
@@ -158,12 +157,12 @@ _connect_by_id(urg_t *urg, const char *desired_serialno)
         }
 
         if (!strcmp (desired_serialno, urg_sensor_serial_id (urg))) {
-            fprintf(stdout, "Found unit with serial %s on %s\n", 
+            fprintf(stdout, "Found unit with serial %s on %s\n",
                     urg_sensor_serial_id (urg), devname);
             g_strfreev(devnames);
             return 1;
         } else {
-            fprintf(stdout, "Skipping %s (found serial #: %s, desired: %s)\n", 
+            fprintf(stdout, "Skipping %s (found serial #: %s, desired: %s)\n",
                     devname, urg_sensor_serial_id (urg), desired_serialno);
             urg_laser_off (urg);
             urg_close (urg);
@@ -175,7 +174,7 @@ _connect_by_id(urg_t *urg, const char *desired_serialno)
 
 static gboolean
 _connect(urg_t *urg, char *serialno, const char *device, const char *ip_address,
-         int *data_max, bot_timestamp_sync_state_t **sync, int skipscans, 
+         int *data_max, bot_timestamp_sync_state_t **sync, int skipscans,
          int skipbeams, int readIntensities, int multi_echo, char *unit_serialno)
 {
     if (!device && ip_address) {
@@ -187,13 +186,13 @@ _connect(urg_t *urg, char *serialno, const char *device, const char *ip_address,
     }
     else {
         if(serialno) {
-            if(!_connect_by_id(urg, serialno)) 
+            if(!_connect_by_id(urg, serialno))
                 return 0;
         } else if(device) {
             if(!_connect_by_device(urg, device))
                 return 0;
         } else {
-            if(!_connect_any_device(urg)) 
+            if(!_connect_any_device(urg))
                 return 0;
         }
     }
@@ -377,7 +376,7 @@ int main(int argc, char *argv[])
         usage (argv[0]);
         return 1;
     }
-    
+
     int data_max;
     long* data = NULL;
     unsigned short* intensity = NULL;
@@ -407,7 +406,7 @@ int main(int argc, char *argv[])
             goto done;
         }
 
-        char *sensor_name = 
+        char *sensor_name =
             bot_param_get_planar_lidar_name_from_lcm_channel (param, channel);
 
         if (!sensor_name) {
@@ -418,7 +417,7 @@ int main(int argc, char *argv[])
 
         char *device_string = NULL;
         char cfg_device[256];
-        snprintf(cfg_device, 256, "planar_lidars.%s.device", sensor_name); 
+        snprintf(cfg_device, 256, "planar_lidars.%s.device", sensor_name);
         if (bot_param_get_str (param, cfg_device, &device_string) == 0) {
             free (ip_address);
             ip_address = g_strdup (device_string);
@@ -426,7 +425,7 @@ int main(int argc, char *argv[])
         else {
             char *serial_string = NULL;
             char cfg_serial[256];
-            snprintf(cfg_serial, 256, "planar_lidars.%s.serial", sensor_name); 
+            snprintf(cfg_serial, 256, "planar_lidars.%s.serial", sensor_name);
             if (bot_param_get_str (param, cfg_serial, &serial_string) == 0) {
                 free (serialno);
                 serialno = g_strdup (serial_string);
@@ -450,8 +449,8 @@ int main(int argc, char *argv[])
 
         fprintf (stdout, "Calling _connect (urg, serialno = %s, device = %s, ip_address = %s)\n",
                  serialno, device, ip_address);
-        connected = _connect (&urg, serialno, device, ip_address, 
-                              &data_max, &sync, skipscans, skipbeams, 
+        connected = _connect (&urg, serialno, device, ip_address,
+                              &data_max, &sync, skipscans, skipbeams,
                               readIntensities, multi_echo, unit_serialno);
 
         if(!connected) {
@@ -487,16 +486,16 @@ int main(int argc, char *argv[])
 
                 char *serial_string;
                 char cfg_var[256];
-                snprintf(cfg_var, 256, "planar_lidars.%s.serial", planar_lidar_names[pind]); 
+                snprintf(cfg_var, 256, "planar_lidars.%s.serial", planar_lidar_names[pind]);
                 serial_string = bot_param_get_str_or_fail (param, cfg_var);
-         
+
                 if (!strcmp (unit_serialno, serial_string)) {
                     free (channel);
-                    channel = bot_param_get_sensor_lcm_channel (param, "planar_lidars", 
+                    channel = bot_param_get_sensor_lcm_channel (param, "planar_lidars",
                                                                 planar_lidar_names[pind]);
                     found_channel = 1;
                     break;
-                }       
+                }
                 free (serial_string);
             }
             g_strfreev(planar_lidar_names);
@@ -528,7 +527,7 @@ int main(int argc, char *argv[])
     bot_core_planar_lidar_t msg;
     int max_nranges = urg_max_data_size (&urg);
 
-    bot_core_planar_lidar_t *m_msgs; 
+    bot_core_planar_lidar_t *m_msgs;
 
     //if (multi_echo)
     //  max_nranges = URG_MAX_ECHO * max_nranges;
@@ -537,14 +536,12 @@ int main(int argc, char *argv[])
     msg.nintensities = 0;
     msg.intensities = (float*) malloc(sizeof(float) * max_nranges);
 
-    //erlcm_multi_planar_lidar_t multi_msg; 
-
     int min_step, max_step;
     double min_rad, max_rad;
     urg_step_min_max (&urg, &min_step, &max_step);
     min_rad = urg_step2rad (&urg, min_step);
     max_rad = urg_step2rad (&urg, max_step);
-    
+
 
     double area_total = max_rad - min_rad;
 
@@ -554,7 +551,7 @@ int main(int argc, char *argv[])
 
     if (multi_echo){
         //allocate multi msg space
-        //multi_msg.no_returns = URG_MAX_ECHO; 
+        //multi_msg.no_returns = URG_MAX_ECHO;
         m_msgs = (bot_core_planar_lidar_t *)calloc(URG_MAX_ECHO, sizeof(bot_core_planar_lidar_t));
         for(int i=0; i < URG_MAX_ECHO; i++){
             //allocate each msg
@@ -562,7 +559,7 @@ int main(int argc, char *argv[])
             m_msgs[i].nintensities = 0;
             m_msgs[i].intensities = (float*) malloc(sizeof(float) * max_nranges);
             m_msgs[i].radstep = (max_rad - min_rad) / (max_nranges - 1);
-            
+
             m_msgs[i].rad0 = min_rad;
         }
     }
@@ -580,7 +577,7 @@ int main(int argc, char *argv[])
             m_channel_names[i] = (char *) calloc(1024, sizeof(char));
             if(i == 0){
                 sprintf(m_channel_names[i], "%s", channel);
-            }  
+            }
             else{
                 sprintf(m_channel_names[i], "%s_%d", channel, i);
             }
@@ -589,7 +586,7 @@ int main(int argc, char *argv[])
 
     //char multi_channel_name[1024];
     //sprintf(multi_channel_name, "%s_MULTI", channel);
-    
+
     fprintf(stdout, "LCM channel:        %s\n", channel);
     fprintf(stdout, "\n");
 
@@ -613,8 +610,8 @@ int main(int argc, char *argv[])
                 nranges = urg_get_multiecho (&urg, data, &time_stamp);
             else
                 nranges = urg_get_multiecho_intensity (&urg, data, intensity, &time_stamp);
-            //mutli-echo returns the no of groups 
-            nranges;// *= 3; 
+            //mutli-echo returns the no of groups
+            nranges;// *= 3;
         }
         else {
             if (!readIntensities)
@@ -623,7 +620,7 @@ int main(int argc, char *argv[])
                 nranges = urg_get_distance_intensity (&urg, data, intensity, &time_stamp);
         }
 
-        
+
         if(nranges > max_nranges) {
             printf("WARNING:  received more range measurements than the maximum advertised!\n");
             printf("          Hokuyo reported max %d, but received %d\n", max_nranges, nranges);
@@ -655,7 +652,7 @@ int main(int argc, char *argv[])
 
                 free (unit_serialno);
                 unit_serialno = (char *) calloc (1, 256*sizeof(char));
-                if (_connect (&urg, serialno, device, ip_address, &data_max, &sync, 
+                if (_connect (&urg, serialno, device, ip_address, &data_max, &sync,
                               skipscans, skipbeams, readIntensities, multi_echo, unit_serialno)) {
                     failure_count = 0;
                     connected = 1;
@@ -691,11 +688,11 @@ int main(int argc, char *argv[])
                 double min_intensity = 0;
                 double max_intensity = 0;
                 for(int i=0; i<nranges; i+=skipbeams) {
-                    if (intensity[i] <= min_intensity) 
+                    if (intensity[i] <= min_intensity)
                         min_intensity = intensity[i];
-                    else if (intensity[i] > max_intensity) 
+                    else if (intensity[i] > max_intensity)
                         max_intensity = intensity[i];
-                }            
+                }
 
                 int c=0;
                 for(int i=0; i<nranges; i+=skipbeams) {
@@ -711,14 +708,14 @@ int main(int argc, char *argv[])
             }
             bot_core_planar_lidar_t_publish(lcm, channel, &msg);
         }
-        else{ //multi-echo - need to do something funky 
-            //data is ordered min value first and 
+        else{ //multi-echo - need to do something funky
+            //data is ordered min value first and
             //fprintf(stderr,"Multi Echo\n");
-            //multi_msg.utime = now; 
+            //multi_msg.utime = now;
             for(int j=0; j< URG_MAX_ECHO; j++){
                 bot_core_planar_lidar_t *c_msg = &m_msgs[j];
-                
-                c_msg->utime = now; 
+
+                c_msg->utime = now;
                 c_msg->nranges = nranges/skipbeams;
 
                 if (readIntensities){
@@ -726,11 +723,11 @@ int main(int argc, char *argv[])
                     double min_intensity = 0;
                     double max_intensity = 0;
                     for(int i=j; i< nranges * URG_MAX_ECHO; i+= URG_MAX_ECHO + URG_MAX_ECHO *(skipbeams-1)) {
-                        if (intensity[i] <= min_intensity) 
+                        if (intensity[i] <= min_intensity)
                             min_intensity = intensity[i];
-                        else if (intensity[i] > max_intensity) 
+                        else if (intensity[i] > max_intensity)
                             max_intensity = intensity[i];
-                    }            
+                    }
 
                     int c=0;
                     //for(int i=0; i<nranges; i+=skipbeams) {
@@ -743,7 +740,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else{
-                    //fprintf(stderr, "%d, nranges : %d Max Echo : %d skip : %d\n", 
+                    //fprintf(stderr, "%d, nranges : %d Max Echo : %d skip : %d\n",
                     //      j, nranges, URG_MAX_ECHO, skipbeams);
 
                     int c=0;
@@ -752,7 +749,7 @@ int main(int argc, char *argv[])
                         //fprintf(stderr,"\t[%d] Ind %d\n", c, i);
                         //for(int i=0; i<nranges; i+=skipbeams)
                         if(j>0 && data[i]==0){
-                            //check the one before 
+                            //check the one before
                             for(int k=1; k <=j; k--){
                                 if(data[i-k] >0){
                                     c_msg->ranges[c++] = data[i-k] * 1e-3;
@@ -762,25 +759,23 @@ int main(int argc, char *argv[])
                         }
                         else{
                             c_msg->ranges[c++] = data[i] * 1e-3;
-                        }                        
+                        }
                     }
                 }
-                //publish the first msg as the normal one 
-                bot_core_planar_lidar_t_publish(lcm, m_channel_names[j], &m_msgs[j]);            
+                //publish the first msg as the normal one
+                bot_core_planar_lidar_t_publish(lcm, m_channel_names[j], &m_msgs[j]);
             }
-            
-            
-            //erlcm_multi_planar_lidar_t_publish(lcm, multi_channel_name, &multi_msg);
+
         }
-    
-    
+
+
         scancount_since_last_report++;
 
         if(now > next_report_utime) {
             double dt = (now - report_last_utime) * 1e-6;
 
             fprintf(stdout, "%4.1f Hz\n", scancount_since_last_report / dt);
-            //this will add a dependency to envoy code base 
+            //this will add a dependency to envoy code base
             bot_core_sensor_status_t msg;
             msg.utime = bot_timestamp_now();
             msg.sensor_name = channel; //maybe use some indexing - to make it unique
