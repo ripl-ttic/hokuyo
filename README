@@ -1,20 +1,22 @@
-This is a default README file, please replace its contents with information
-relevant to your project.
+# Hokuyo drivers
 
 This software is constructed according to the Pods software policies and
-templates.  The policies and templates can be found at:
+templates. The policies and templates can be found at:
 
   http://sourceforge.net/projects/pods
 
-====
 
-Name:         hokuyo_config
-Maintainers:  FILL-ME-IN
-Summary:      FILL-ME-IN
-Description:
-  FILL-ME-IN
+## Use it in Docker
 
-Requirements: 
-  FILL-ME-IN
+To use the hokuyo drivers in a Docker container, clone the repository and run the following command to
+build the image:
 
-License:      FILL-ME-IN
+```
+docker build [ARGUMENTS] -t ripl-ttic/hokuyo ./
+```
+
+You can specify build arguments using the syntax `--build-arg KEY1=VALUE1 KEY2=VALUE2 ...`
+
+#### Available ARGUMENTS
+
+- `INSTALL_DIR`:  Path, inside the container, where to install the drivers. Default is `/root/hokuyo/build`.
