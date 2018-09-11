@@ -1,7 +1,8 @@
 FROM afdaniele/libbot2:latest
 
 # arguments
-ARG INSTALL_DIR=/usr/local
+#ARG INSTALL_DIR=/usr/local
+ARG INSTALL_DIR=/root/hokuyo/build
 
 # environment
 ENV HOKUYO_DRIVER_INSTALL_DIR $INSTALL_DIR
@@ -20,3 +21,7 @@ RUN cd /root/hokuyo/ && make BUILD_PREFIX=$HOKUYO_DRIVER_INSTALL_DIR
 #   the CMAKE_INSTALL_PREFIX variable always reverts to /root/hokuyo/build/.
 ENV PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOKUYO_DRIVER_INSTALL_DIR/lib/pkgconfig/
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOKUYO_DRIVER_INSTALL_DIR/lib/
+ENV PATH=$PATH:$HOKUYO_DRIVER_INSTALL_DIR/bin/
+
+# set entrypoint
+ENTRYPOINT ["hr-hokuyo"]
