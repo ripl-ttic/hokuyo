@@ -1,6 +1,6 @@
 add_definitions(-std=gnu99)
 
-set(progname hr-hokuyo)
+set(progname hokuyo)
 add_executable(${progname}
     main.c
     urglib/urg_sensor.h
